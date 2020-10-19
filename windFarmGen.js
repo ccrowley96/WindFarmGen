@@ -25,7 +25,7 @@ class WindSimulation {
         return events;
     }
 
-    generateTsmInstances(){
+    generateTsmInstances(download = true){
         var instancesArray = [];
         this.windFarms.forEach(function(wf){
             wf.windMills.forEach(function(wm){
@@ -49,7 +49,8 @@ class WindSimulation {
                 });
             });
         });
-        downloadText(JSON.stringify({put: instancesArray}));
+        if(download)
+            downloadText(JSON.stringify({put: instancesArray}));
     }
 
     generateId(){
@@ -149,7 +150,11 @@ class WindMillDevice{
 }
 
 var packetNumber = 0;
+let interval = null; 
+
 function simulate(){
+    // Clear any prior interval
+    clearInterval(interval);
 
     // create event hub client from input connection string
     var connectionString = document.getElementById('ehcs').value;
@@ -163,14 +168,46 @@ function simulate(){
             'timeOut': 10,
         });
 
+    // Validate inputs
+    let daysAgo = document.getElementById('daysAgo').value;
+    let dontPushPastNow = document.getElementById('pastNow').checked;
+    let timestampSpacing = document.getElementById('timestampSpacing').value;
+    let livePushFrequency = document.getElementById('livePushFrequency').value;
+    let pushFrequency = document.getElementById('pushFrequency').value;
+    let isPastNow = (new Date()).valueOf()
 
-    var startDateMillis = (new Date()).valueOf();
-    // 9K Packets is 1 day
-    var windSimulation = new WindSimulation(startDateMillis, 10000);
+    if(daysAgo === "" || timestampSpacing === "" || livePushFrequency === "" || pushFrequency === ""){
+        throw new Error("Input controls cannot be empty")
+    }
+
+    daysAgo = Number(daysAgo);
+    timestampSpacing = Number(timestampSpacing);
+    livePushFrequency = Number(livePushFrequency);
+    pushFrequency = Number(pushFrequency);
+
+    var startDateMillis = (new Date()).valueOf() - (daysAgo * 86400000); // get starting date
+
+    let startLiveSimulation = () => {
+        var windSimulation = new WindSimulation((new Date()).valueOf(), livePushFrequency);
+        windSimulation.generateTsmInstances(false);
+        interval = setInterval(function(){
+            console.log('Pushing live data: ', new Date(windSimulation.seedTimeMillis))
+            pushEvents(windSimulation.tick());
+        }, livePushFrequency);
+    }
+
+    var windSimulation = new WindSimulation(startDateMillis, timestampSpacing);
     windSimulation.generateTsmInstances();
-    setInterval(function(){
+    console.log('Beginning simulation @ ', new Date(startDateMillis))
+    interval = setInterval(function(){
+        // Clear interval if past now
+        if(windSimulation.seedTimeMillis > (new Date()).valueOf() && dontPushPastNow){
+            console.log('Reached "now", beginning live simulation');
+            clearInterval(interval);
+            startLiveSimulation();
+        } 
         pushEvents(windSimulation.tick());
-    }, 15);
+    }, pushFrequency);
 }
 
 var ehClient;
@@ -198,3 +235,33 @@ function downloadText (text) {
     document.body.appendChild(link);
     link.click();
 }  
+
+// Event listeners
+window.onload = function() {
+    let timestampSpacing = Number(document.getElementById('timestampSpacing').value);
+    let pushFrequency = Number(document.getElementById('pushFrequency').value);
+
+    let updateTimeEstimate = () => {
+        let conversion = 1000 * 60; // msec -> minutes
+        let msInDay = 24 * 60 * 60 * 1000;
+        let numEventsToSendPerDay = msInDay / timestampSpacing;
+        let timeToSend = (pushFrequency / conversion) * numEventsToSendPerDay; // frequency in seconds * number of events
+        document.getElementById('pushFrequencyLabel').innerHTML = timeToSend.toFixed(2);
+    }
+
+    document.getElementById('pushFrequency').addEventListener('change', (event) => {
+        pushFrequency = Number(event.target.value);
+        updateTimeEstimate();
+    });
+    
+    document.getElementById('timestampSpacing').addEventListener('change', (event) => {
+        timestampSpacing = Number(event.target.value);
+        updateTimeEstimate();
+    });
+
+    // Live push frequency 
+    document.getElementById('livePushFrequency').addEventListener('change', (event) => {
+        // update label
+        const label = document.getElementById('livePushLabel').innerHTML = event.target.value;
+    });
+}
