@@ -174,7 +174,6 @@ function simulate(){
     let timestampSpacing = document.getElementById('timestampSpacing').value;
     let livePushFrequency = document.getElementById('livePushFrequency').value;
     let pushFrequency = document.getElementById('pushFrequency').value;
-    let isPastNow = (new Date()).valueOf()
 
     if(daysAgo === "" || timestampSpacing === "" || livePushFrequency === "" || pushFrequency === ""){
         throw new Error("Input controls cannot be empty")
