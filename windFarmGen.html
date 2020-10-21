@@ -7,12 +7,15 @@
     <script src="windFarmGen.js"></script>
     <style>
         .control{
-            margin-bottom: 10px;
             padding: 10px;
             font-size: larger;
             background-color: #555;
             border-radius: 10px;;
+            width: 100%;
             max-width: 800px;
+            left: 0px; 
+            right: 0px;
+            margin: 10px auto;
         }
         .info{
             font-style: italic;
@@ -31,48 +34,89 @@
             padding: 8px;
             text-align: left;
         }
+        h1,h2,h3,h4{
+            margin: 5px 0px;
+        }
 
+        .checkbox{
+            width: 24px;
+            height: 24px;
+        }
+        .flexTitle{
+            display: flex;
+            align-items: center;
+        }
+        .flexTitle > input{
+            margin-left: 20px;
+            font-size: 20px;
+            width: 100px;
+            height: 20px;
+        }
+        .disabled{
+            background-color: #222;
+            color: rgba(255,255,255, .5);
+        }
+
+        .controlWrapper{
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap
+            justify-content: center;
+        }
     </style>
 </head>
 <body style="color: white; background: #333; font-family: segoe ui; margin: 0;">
     <div style="border-bottom: 1px solid #aaa; background: black; color: white; width: 100%; height: 40px; padding: 20px; box-sizing: border-box; line-height: 2px;">TSI Sample Wind Farm Pusher</div>
-    <div style="padding: 20px;">
+    <div class="controlWrapper" style="padding: 20px;">
         <div class="control">
-            Event Hub Connection String
+            Event Hub Connection String (copy from event hub instance on azure portal)
             <input id="ehcs" style="margin: 4px 0; padding: 4px; width: calc(100% - 20px);"/>
         </div>
         
         <!-- Warm store size -->
         <div class="control">
-            Start this many days ago (days)
-            <input id="daysAgo" type="number" value="7">
+            <div class="flexTitle">
+                <h3> How many days to simulate </h3>
+                <input id="daysAgo" type="number" value="7">
+            </div>
+            Start simulating this many days ago (days)
         </div>
 
         <!-- Should the data push into the future -->
         <div class="control">
-            Don't push past "now":
-            <input id="pastNow" type="checkbox" checked>
+            <div style="display: flex; align-items: center;"><h3 style="margin-right: 10px">Simulate live data stream? </h3><input class="checkbox" id="pastNow" type="checkbox" checked></div>
+            If un-checked, simulation will continue to push events into the future at quick stream frequency indefinitely.
+            If checked, simulation will stop at Date.now(), and begin to push data every [live stream frequency] ms.
         </div>
 
         <!-- Timestamp spacing -->
         <div class="control">
+            <div class="flexTitle">
+                <h3>Data spacing</h3>
+                <input id="timestampSpacing" type="number" value="10000">
+            </div>
             Time between event timestamps (ms)
-            <input id="timestampSpacing" type="number" value="10000">
         </div>
 
         <!-- Live push frequency -->
-        <div class="control">
+        <div class="control" id="liveFrequency">
+            <div class="flexTitle">
+                <h3>Live stream frequency (simulates live data polling)</h3>
+                <input class="liveFrequencyInput" id="livePushFrequency" type="number" value="1000">
+            </div>
             How frequently to push "live" events once caught up to "now" (ms)
-            <input id="livePushFrequency" type="number" value="1000">
             <div>
-                <i>This will push new events every <span id="livePushLabel">1000</span> (ms) simulating live data</i>
+                <i>This will push new events every <span id="livePushLabel">1000</span> (ms) simulating a live data stream</i>
             </div>
         </div>
 
         <!-- Push frequency for past / future  -->
         <div class="control">
+            <div class="flexTitle">
+                <h3>Quick stream frequency (fill past / future time quickly)</h3>
+                <input id="pushFrequency" type="number" value="25" min="10">
+            </div>
             How frequently to push past / future events (ms)
-            <input id="pushFrequency" type="number" value="25" min="10">
             <div>
                 <i>
                     This will push 1 days worth of events in (<span id="pushFrequencyLabel">3.60</span> minutes)
@@ -93,7 +137,7 @@
                 </tr>
                 <tr>
                     <td>Time series ID property name</td>
-                    <td>'ID'</td>
+                    <td>'Id'</td>
                 </tr>
                 <tr>
                     <td>Timestamp property name</td>
@@ -101,8 +145,12 @@
                 </tr>
             </table>
         </div>
+        <div class="control" style="background-color: unset; padding-left: unset;">
+            <div class="button" style="padding: 10px 46px; background: teal; cursor: pointer; display: inline-block; margin-top: 0px;" onclick="simulate()">Click to start</div>
+        </div>
+        <div class="control" style="max-width: 850px; background-color: unset;">
+            <div id="result" style="width: 600px; padding: 20px;"></div>
+        </div>
     </div>
-    <div class="button" style="padding: 10px 46px; background: teal; cursor: pointer; display: inline-block; margin: 20px; margin-top: 0px;" onclick="simulate()">Click to start</div>
-    <div id="result" style="width: 600px; padding: 20px;"></div>
 </body>
 </html>

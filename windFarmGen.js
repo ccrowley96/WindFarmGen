@@ -249,19 +249,28 @@ window.onload = function() {
         document.getElementById('pushFrequencyLabel').innerHTML = timeToSend.toFixed(2);
     }
 
-    document.getElementById('pushFrequency').addEventListener('change', (event) => {
+    document.getElementById('pushFrequency').addEventListener('change', event => {
         pushFrequency = Number(event.target.value);
         updateTimeEstimate();
     });
     
-    document.getElementById('timestampSpacing').addEventListener('change', (event) => {
+    document.getElementById('timestampSpacing').addEventListener('change', event => {
         timestampSpacing = Number(event.target.value);
         updateTimeEstimate();
     });
 
     // Live push frequency 
-    document.getElementById('livePushFrequency').addEventListener('change', (event) => {
+    document.getElementById('livePushFrequency').addEventListener('change', event => {
         // update label
         const label = document.getElementById('livePushLabel').innerHTML = event.target.value;
     });
+
+    document.getElementById('pastNow').addEventListener('change', event => {
+        document.getElementById('liveFrequency').classList.remove('disabled');
+        document.getElementById('livePushFrequency').disabled = false;
+        if(!event.target.checked){
+            document.getElementById('liveFrequency').classList.add('disabled');
+            document.getElementById('livePushFrequency').disabled = true;
+        }
+    })
 }
