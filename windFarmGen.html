@@ -2,9 +2,11 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>TSI WindFarm Simulation</title>
+    <title>TSI Device Simulation</title>
     <script src="serviceBusSdk.js"></script>
     <script src="windFarmGen.js"></script>
+    <script src="assetGen.js"></script>
+    <script src="simulate.js"></script>
     <style>
         h1{
             font-size: 18px
@@ -102,6 +104,13 @@
     <div style="border-bottom: 1px solid #aaa; background: black; color: white; width: 100%; height: 40px; padding: 20px; box-sizing: border-box; line-height: 2px;">TSI Sample Wind Farm Pusher</div>
     <div class="formWrapper">
         <div class="controlWrapper" style="padding: 20px;">
+            <div class="control">
+                <h2>Simulation Type</h2>
+                <select id="simType">
+                    <option>Wind Farm</option>
+                    <option>Connected Assets</option>
+                </select>
+            </div>
             <div class="control">
                 <h2>Event Hub Connection String (copy from event hub instance on azure portal)</h2>
                 <input id="ehcs" style="margin: 4px 0; padding: 4px; width: calc(100% - 20px);"/>
