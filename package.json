@@ -1,4 +1,5 @@
 {
+  "name": "wind-farm-gen",
   "scripts": {
     "start": "node server.js"
   },

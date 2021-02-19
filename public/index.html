@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>TSI Device Simulation</title>
+    <title>TSI/ADT Device Simulation</title>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="serviceBusSdk.js"></script>
     <script src="windFarmGen.js"></script>
@@ -148,6 +148,7 @@
           dtButton2.style.display = "none";
 
           pushFrequency.value = 25;
+          pushFrequency.setAttribute("min", 10);
         } else {
           adtHubControl.style.display = "block";
           dtButton1.style.display = "block";
@@ -158,6 +159,7 @@
           tsiInfoControl.style.display = "none";
 
           pushFrequency.value = 1000;
+          pushFrequency.setAttribute("min", 1000);
         }
       }
     </script>

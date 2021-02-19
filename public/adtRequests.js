@@ -43,8 +43,6 @@ function createTwins() {
   );
 
   let twins = assetSimulation.generateDTwins();
-  debugger;
-  console.log(twins);
   twins.forEach((twin) => {
     let id = twin["$dtId"];
     delete twin["$dtId"];
@@ -57,7 +55,6 @@ function createTwins() {
         digitalTwinJson: twin,
       })
       .then((response) => {
-        debugger;
         let result = response.data;
         if (result.code) {
           info.innerText += `\nError in ${id}: ${result.details.error.message}`;

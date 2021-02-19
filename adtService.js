@@ -69,27 +69,4 @@ module.exports = {
       res.send(error);
     }
   },
-  publishTelemetry: async function (req, res) {
-    process.env.AZURE_DIGITALTWINS_URL = req.body.AZURE_DIGITALTWINS_URL;
-    process.env.AZURE_TENANT_ID = req.body.AZURE_TENANT_ID;
-    process.env.AZURE_CLIENT_ID = req.body.AZURE_CLIENT_ID;
-    const url = process.env.AZURE_DIGITALTWINS_URL;
-
-    const credential = new DefaultAzureCredential();
-    const serviceClient = new DigitalTwinsClient(url, credential);
-
-    try {
-      const digitalTwinId = req.body.digitalTwinId;
-      const telemetryPayload = req.body.telemetryPayload;
-      const response = await serviceClient.publishTelemetry(
-        digitalTwinId,
-        telemetryPayload
-      );
-
-      res.send(response.parsedBody);
-    } catch (error) {
-      console.log(error);
-      res.send(error);
-    }
-  },
 };

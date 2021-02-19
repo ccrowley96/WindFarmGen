@@ -13,7 +13,6 @@ app.use(express.static(__dirname + "/public")); // expose files
 app.post("/createModel", adtService.createModel);
 app.post("/createTwin", adtService.createTwin);
 app.patch("/updateTwin", adtService.updateTwin);
-app.post("/publishTelemetry", adtService.publishTelemetry);
 
 // Start the server.
 app.listen(port);
